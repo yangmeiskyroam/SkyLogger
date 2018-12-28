@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="true">
+    <property name="LOG_DIR" value="/sdcard/LoggingTools/" />
+
+    <!-- ConsoleAppender 控制台输出日志 -->
+    <!--<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">-->
+        <!--&lt;!&ndash; 对日志进行格式化 &ndash;&gt;-->
+        <!--<encoder>-->
+            <!--<pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger -%msg%n</pattern>-->
+        <!--</encoder>-->
+    <!--</appender>-->
+
+    <appender name="LOGCAT" class="ch.qos.logback.classic.android.LogcatAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%file:%M:%line] - %msg%n</pattern>
+        </encoder>
+    </appender>
+ 
+    <!-- Log level - change this to ERROR on release -->
+    <root level="TRACE">
+        <appender-ref ref="LOGCAT" />
+    </root>
+</configuration>

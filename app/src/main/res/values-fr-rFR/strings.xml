@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SkyLogger</string>
+    <string name="uplaod_btn">Upload</string>
+    <string name="logstart_btn">Début</string>
+    <string name="logend_btn">Arrêter</string>
+    <string name="delete_btn">Supprimer</string>
+    <string name="file_items">%d  Des dossiers</string>
+    <string name="items_selected">%d  Des dossiers sélectionner</string>
+    <string name="file_item">%d  Des dossiers</string>
+    <string name="item_selected">%d  Des dossiers sélectionner</string>
+    <string name="file_select_all">Tout sélectionner</string>
+    <string name="compressing">Compression...</string>
+    <string name="compress_faile">La compression a échoué...</string>
+    <string name="connect_server_faile">Échec de connexion...</string>
+    <string name="uploading">Téléchargement...</string>
+    <string name="ready_upload">Prêt à télécharger...</string>
+    <string name="upload_complete">Téléchargement terminé %d-Échec</string>
+    <string name="upload_process">%d-Le succès %d-Échec %d-Upload...</string>
+    <string name="log_connect">À partir...</string>
+    <string name="log_disconnect">Arrêt...</string>
+    <string name="dialog_yes_button">Déterminer</string>
+    <string name="dialog_cancle_button">Annuler</string>
+    <string name="dialog_log_describe">Description du journal</string>
+</resources>

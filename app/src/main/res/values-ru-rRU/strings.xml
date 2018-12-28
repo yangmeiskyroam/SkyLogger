@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SkyLogger</string>
+    <string name="uplaod_btn">Загрузить</string>
+    <string name="logstart_btn">Начало регистрации</string>
+    <string name="logend_btn">Остановка регистрации</string>
+    <string name="delete_btn">удалять</string>
+    <string name="file_items">%d  файлы</string>
+    <string name="items_selected">%d  файлы Выбрать</string>
+    <string name="file_item">%d  файлы</string>
+    <string name="item_selected">%d  файлы Выбрать</string>
+    <string name="file_select_all">Выбрать все</string>
+    <string name="compressing">сжимающий...</string>
+    <string name="compress_faile">Сжатие не выполнено...</string>
+    <string name="connect_server_faile">Ошибка соединения...</string>
+    <string name="uploading">Выгрузка...</string>
+    <string name="ready_upload">Готов к загрузке...</string>
+    <string name="upload_complete">Загрузка завершена %d-недостаточность</string>
+    <string name="upload_process">%d-успех %d-недостаточность %d-Выгрузка...</string>
+    <string name="log_connect">начало...</string>
+    <string name="log_disconnect">остановка...</string>
+    <string name="dialog_yes_button">определить</string>
+    <string name="dialog_cancle_button">отменен</string>
+    <string name="dialog_log_describe">Описание журнала</string>
+</resources>

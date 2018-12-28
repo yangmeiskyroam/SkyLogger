@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SkyLogger</string>
+    <string name="uplaod_btn">Subir</string>
+    <string name="logstart_btn">Iniciar</string>
+    <string name="logend_btn">Deténgase</string>
+    <string name="delete_btn">Borrar</string>
+    <string name="file_items">%d  Archivos</string>
+    <string name="items_selected">%d  Archivos Selecciona</string>
+    <string name="file_item">%d  Archivos</string>
+    <string name="item_selected">%d  Archivos Selecciona</string>
+    <string name="file_select_all">Seleccionar todo</string>
+    <string name="compressing">Apresamiento...</string>
+    <string name="compress_faile">La compresión falló...</string>
+    <string name="connect_server_faile">Fallo de conexión...</string>
+    <string name="uploading">Subiendo...</string>
+    <string name="ready_upload">Listo para subir...</string>
+    <string name="upload_complete">Subida completada %d-Fracaso</string>
+    <string name="upload_process">%d-El exito %d-Fracaso %d-Subiendo...</string>
+    <string name="log_connect">Comenzando...</string>
+    <string name="log_disconnect">Parando...</string>
+    <string name="dialog_yes_button">Determinar</string>
+    <string name="dialog_cancle_button">Cancelar</string>
+    <string name="dialog_log_describe">Descripción del registro</string>
+</resources>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SkyLogger</string>
+    <string name="uplaod_btn">上传</string>
+    <string name="logstart_btn">开始</string>
+    <string name="logend_btn">停止</string>
+    <string name="delete_btn">删除</string>
+    <string name="file_items">共有%d个文件</string>
+    <string name="items_selected">%d个文件选中</string>
+    <string name="file_item">共有%d个文件</string>
+    <string name="item_selected">%d个文件选中</string>
+    <string name="file_select_all">全选</string>
+    <string name="compressing">正在压缩...</string>
+    <string name="compress_faile">压缩失败...</string>
+    <string name="connect_server_faile">连接服务器失败...</string>
+    <string name="uploading">上传中...</string>
+    <string name="ready_upload">压缩成功准备上传...</string>
+    <string name="upload_complete">上传完成 %d-失败</string>
+    <string name="upload_process">%d-成功 %d-失败 %d-正在上传...</string>
+    <string name="log_connect">正在启动...</string>
+    <string name="log_disconnect">正在停止...</string>
+    <string name="dialog_yes_button">确定</string>
+    <string name="dialog_cancle_button">取消</string>
+    <string name="dialog_log_describe">日志描述</string>
+</resources>

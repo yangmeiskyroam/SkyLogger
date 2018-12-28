@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SkyLogger</string>
+    <string name="uplaod_btn">Unggah</string>
+    <string name="logstart_btn">Mulai</string>
+    <string name="logend_btn">Hentikan</string>
+    <string name="delete_btn">Hapus</string>
+    <string name="file_items">%d File</string>
+    <string name="items_selected">%d File Pilih</string>
+    <string name="file_item">%d Pilih</string>
+    <string name="item_selected">%d File Pilih</string>
+    <string name="file_select_all">Pilih Semua</string>
+    <string name="compressing">Mengompresi...</string>
+    <string name="compress_faile">Kompresi gagal...</string>
+    <string name="connect_server_faile">Koneksi Bermasalah...</string>
+    <string name="uploading">Mengunggah...</string>
+    <string name="ready_upload">Siap untuk diunggah...</string>
+    <string name="upload_complete">Pengunggahan selesai %d-Kegagalan</string>
+    <string name="upload_process">%d-Sukses %d-Kegagalan %d-Unggah...</string>
+    <string name="log_connect">Mulai...</string>
+    <string name="log_disconnect">Berhenti...</string>
+    <string name="dialog_yes_button">Tentukan</string>
+    <string name="dialog_cancle_button">Batalkan</string>
+    <string name="dialog_log_describe">Deskripsi log</string>
+</resources>

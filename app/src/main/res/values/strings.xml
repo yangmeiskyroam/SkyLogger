@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">SkyLogger</string>
+    <string name="uplaod_btn">Upload</string>
+    <string name="logstart_btn">Startlog</string>
+    <string name="logend_btn">Endlog</string>
+    <string name="delete_btn">Delete</string>
+    <string name="file_items">%d  Files</string>
+    <string name="items_selected">%d  Files selected</string>
+    <string name="file_item">%d  File</string>
+    <string name="item_selected">%d  File selected</string>
+    <string name="file_select_all">Select all</string>
+    <string name="compressing">Compressing...</string>
+    <string name="compress_faile">Compression failed...</string>
+    <string name="connect_server_faile">Connection failure...</string>
+    <string name="uploading">Uploading...</string>
+    <string name="ready_upload">Ready to upload...</string>
+    <string name="upload_complete">Upload completed %d-failed</string>
+    <string name="upload_process">%d-Success %d-Failed %d-Upload...</string>
+    <string name="log_connect">turning on...</string>
+    <string name="log_disconnect">turning off...</string>
+    <string name="dialog_yes_button">Yes</string>
+    <string name="dialog_cancle_button">No</string>
+    <string name="dialog_log_describe">Log description</string>
+</resources>
