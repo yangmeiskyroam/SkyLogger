@@ -14,8 +14,17 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
+            applicationVariants.all { variant ->
+                variant.outputs.all { output ->
+                    outputFileName ="SkyLogger_${releaseTime()}.apk"
+                }
+            }
         }
     }
+}
+def releaseTime() {
+    return new Date().format("yyyyMMdd_HHmmss", TimeZone.getTimeZone("GMT+8"))
 }
 
 dependencies {

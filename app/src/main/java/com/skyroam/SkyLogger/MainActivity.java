@@ -640,6 +640,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
              filter_name = "catcher_filter_1_ulwctg_n_Skyroam_Filter_Wiko_UserDebug_User_P5.bin";
          } else if(finger.indexOf("WIKO/W_K600ID/W_K600:8.1.0/O11019/1542601555:userdebug/release-keys") > -1){
            filter_name = "catcher_filter_1_ulwctg_n_Skyroam_Filter_Wiko_UserDebug_P52.bin";
+         } else if(finger.indexOf("TECNO/H624/TECNO-KB8:9/PPR1.180610.011/BNPQ-181211V37:userdebug/release-keys") > -1) {
+             filter_name = "catcher_filter_1_ulwtg_n_Skyroam_Filter_TECHNO_UserDebug.bin";
          } else{
              LogUtils.e(MainActivity.class,"unknown finger:"+finger);
          }
