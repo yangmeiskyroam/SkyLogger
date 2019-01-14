@@ -150,7 +150,6 @@ public class MyFileModule{
             }
 
             if (file.delete()) {
-                LogUtils.d(MyFileModule.class,"删除单个文件" + fileFullName + "成功！");
                 return true;
             } else {
                 LogUtils.e(MyFileModule.class,"删除单个文件" + fileFullName + "失败！");
@@ -394,13 +393,13 @@ public class MyFileModule{
         return FileSizeArray;
     }
 
-    public static boolean ZipFiles(String path,String[] filelist,String dest){
+    public static boolean ZipFiles(String src,String dest){
         //定义压缩输出流
         ZipOutputStream out = null;
         boolean result = true;
         try {
             //传入源文件
-            File fileOrDirectory= new File(path);
+            File fileOrDirectory= new File(src);
             File outFile= new File(dest);
             //传入压缩输出流
             //创建文件前几级目录
@@ -420,14 +419,10 @@ public class MyFileModule{
             }else {
                 //否则列出目录中的所有文件递归进行压缩
                 File[]entries = fileOrDirectory.listFiles();
-                for (int i= 0; i < entries.length;i++) {
-                    for(int list_index = 0;list_index<filelist.length;list_index++) {
-                        if (entries[i].getName().equals(filelist[list_index])) {
-                            result = zipFileOrDirectory(out, entries[i], fileOrDirectory.getName() + "/");//传入最外层目录名
-                            if(result == false)
-                                break;
-                        }
-                    }
+                for (int i= 0; i < entries.length;i++){
+                    result = zipFileOrDirectory(out, entries[i], fileOrDirectory.getName() + "/");//传入最外层目录名
+                    if(result == false)
+                        break;
                 }
             }
         }catch(IOException ex) {
@@ -499,6 +494,46 @@ public class MyFileModule{
         return result;
     }
 
+    public static boolean isFolder(String filename){
+        File file = new File(GetRootPath()+filename);
+        if (file != null) {
+            if ((file.exists()) && (file.isDirectory())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static String ReadFile(String filePath, String fileName){
+        StringBuilder sb = new StringBuilder("");
+        File file = new File(GetRootPath()+filePath);
+        if (!file.exists()) {
+            return null;
+        }
+
+        try{
+            File fileRead = new File(GetRootPath()+filePath + fileName);
+            // 首先判断文件是否存在
+            if (!fileRead.exists()) {
+                return null;
+            }
+
+            FileInputStream inputStream = new FileInputStream(fileRead);
+            byte[] buffer = new byte[1024];
+            int len = inputStream.read(buffer);
+            while(len > 0){
+                sb.append(new String(buffer,0,len));
+                len = inputStream.read(buffer);
+            }
+            inputStream.close();
+            return sb.toString();
+        }catch (Exception e){
+            LogUtils.i(MyFileModule.class,"读文件"+fileName+"失败，reason："+e.toString());
+        }
+        return null;
+    }
+
     public static boolean WriteFile(String filePath, String fileName, String string){
         File file = new File(GetRootPath()+filePath);
         boolean result = false;
@@ -535,12 +570,12 @@ public class MyFileModule{
     private static int TotFileNum = 0;
     private static int SuccessFileNum = 0;
     private static int FaileFileNum = 0;
+    private static OSSAsyncTask UploadTask;
 
     private static String buildObjectKey(String FileName){
-        BasicInfo basicInfo = new BasicInfo();
-        String devicebrand = basicInfo.getDeviceBrand();
-        String systemmodel = basicInfo.getSystemModel();
-        String sn = basicInfo.getSN();
+        String devicebrand = BasicInfo.getDeviceBrand();
+        String systemmodel = BasicInfo.getSystemModel();
+        String sn = BasicInfo.getSN();
         Calendar calendar = Calendar.getInstance();
         String timestamp = String.format("%04d_%02d_%02d",
                 calendar.get(Calendar.YEAR),
@@ -604,6 +639,9 @@ public class MyFileModule{
         FaileFileNum = 0;
     }
 
+    public static void UploadCancle(){
+        UploadTask.cancel();
+    }
     public static void ResumableUpload(final String FileName, final Handler handler) {
         String endpoint = "http://oss-cn-hangzhou.aliyuncs.com";
         String stsServer = "http://47.91.198.137:65534/sts/getsts";
@@ -630,7 +668,7 @@ public class MyFileModule{
             }
         });
 
-        OSSAsyncTask resumableTask = oss.asyncResumableUpload(request, new OSSCompletedCallback<ResumableUploadRequest, ResumableUploadResult>() {
+        UploadTask = oss.asyncResumableUpload(request, new OSSCompletedCallback<ResumableUploadRequest, ResumableUploadResult>() {
             @Override
             public void onSuccess(ResumableUploadRequest request, ResumableUploadResult result) {
                 handleSuccessCallback(FileName,handler);
@@ -690,7 +728,7 @@ public class MyFileModule{
             }
         });
 
-        OSSAsyncTask task = oss.asyncPutObject(put, new OSSCompletedCallback<PutObjectRequest, PutObjectResult>() {
+        UploadTask = oss.asyncPutObject(put, new OSSCompletedCallback<PutObjectRequest, PutObjectResult>() {
             @Override
             public void onSuccess(PutObjectRequest request, PutObjectResult result) {
                 handleSuccessCallback(FileName,handler);

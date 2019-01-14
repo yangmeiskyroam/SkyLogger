@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static java.lang.Thread.sleep;
+
 public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback
  {
      private static String[] PERMISSIONS = { Manifest.permission.READ_PHONE_STATE,
@@ -51,6 +53,12 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
      private Timer location_timer = null;
      private int upload_status = 0;//1： 正在压缩 2：压缩完成 3:开始上传
 
+     private String mLogStartTime = null;
+     private String mLogEndTime = null;
+     private double mLongitude = 0.0;
+     private double mLatitude = 0.0;
+
+     private TextView info = null;
      private TextView tv = null;
      private ListView lv = null;
      private TextView LogTimerView;
@@ -85,11 +93,68 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         mHandler = create_handle();
         InitViews();
         InitListView();
+
+        LogUtils.i(MainActivity.class,"The onCreate() event");
     }
+
+     /** 当活动即将可见时调用 */
+     @Override
+     protected void onStart() {
+         super.onStart();
+         LogUtils.d(MainActivity.class, "The onStart() event");
+     }
+
+     /** 当活动可见时调用 */
+     @Override
+     protected void onResume() {
+         super.onResume();
+         LogUtils.d(MainActivity.class, "The onResume() event");
+     }
+
+     /** 当其他活动获得焦点时调用 */
+     @Override
+     protected void onPause() {
+         super.onPause();
+         LogUtils.d(MainActivity.class, "The onPause() event");
+     }
+
+     /** 当活动不再可见时调用 */
+     @Override
+     protected void onStop() {
+         super.onStop();
+         LogUtils.d(MainActivity.class, "The onStop() event");
+     }
+
+     /** 当活动将被销毁时调用 */
+     @Override
+     public void onDestroy() {
+         LogUtils.i(MainActivity.class, "The onDestroy() event");
+         LogUtils.i(MainActivity.class, "logging:"+logging_start_timer_count+" upload:"+upload_status);
+         if(logging_start_timer_count != 0){
+             MyMtkLogger.StopMtkLog();
+             new Thread(){
+                 public void run(){
+                     try {
+                         sleep(2000);
+                         MyFileModule.DeleteFile0rDir("mtklog", true);
+                         String dstFilename = buildLogFileName(buildLogTime());
+                         MyFileModule.MoveFileOrDir("mtklog",dstFilename);
+                     } catch (InterruptedException e) {
+                         e.printStackTrace();
+                         LogUtils.i(MainActivity.class,"onDestroy exception:"+e.toString());
+                     }
+                 }
+             }.start();
+         }
+         if(upload_status != 0){
+            MyFileModule.UploadCancle();
+         }
+         super.onDestroy();
+     }
 
      @Override
      public boolean onKeyDown(int keyCode, KeyEvent event) {
-         LogUtils.d(MainActivity.class,"logging:"+logging_start_timer_count+" upload status:"+upload_status);
+         LogUtils.i(MainActivity.class,"logging:"+logging_start_timer_count+" upload status:"+upload_status);
          if(keyCode == KeyEvent.KEYCODE_BACK){
              if((logging_start_timer_count != 0) || (upload_status != 0)) {
                  Intent i = new Intent(Intent.ACTION_MAIN);
@@ -127,7 +192,16 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
          tv.setText(text);
     }
 
+     private void InitFixLogVariables(){
+         mLogStartTime = null;
+         mLogEndTime = null;
+         mLongitude = 0.0;
+         mLatitude = 0.0;
+     }
+
      private void InitViews() {
+         info = (TextView) this.findViewById(R.id.info);
+         info.setText(BasicInfo.getDeviceBrand()+":"+BasicInfo.getSystemModel()+":"+BasicInfo.getSN());
          tv = (TextView) this.findViewById(R.id.tv);
          lv = (ListView) this.findViewById(R.id.lv);
          LogTimerView = (TextView)findViewById(R.id.LogView);;
@@ -184,6 +258,34 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
              }
          });
 
+         lv.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+             @Override
+             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                 if(MyFileModule.isFolder(mFilenameArray.get(position))==false){
+                     LogUtils.i(MainActivity.class,mFilenameArray.get(position)+"不是文件夹，长按无效！");
+                     return false;
+                 }
+                 String dir = mFilenameArray.get(position)+"/";
+                 String OldFixContent;
+                 String OldDescribe;
+                 String OldContent = MyFileModule.ReadFile(dir,"README.txt");
+                 if(OldContent == null){
+                     OldFixContent = null;
+                     OldDescribe = null;
+                 }else {
+                     int Pos = OldContent.indexOf("描述:");
+                     if (Pos == -1) {
+                         OldFixContent = OldContent;
+                         OldDescribe = null;
+                     } else {
+                         OldFixContent = OldContent.substring(0, Pos);
+                         OldDescribe = OldContent.substring(Pos + "描述:".length());
+                     }
+                 }
+                 ShowLogDescribeModifyDialog(dir,OldFixContent,OldDescribe);
+                 return true;
+             }
+         });
      }
 
      private void CheckAllSelect(boolean checked) {
@@ -242,10 +344,9 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
          adapter.notifyDataSetChanged();
      }
 
-     private String buildLFileName(){
+     private String buildLogTime(){
          Calendar calendar = Calendar.getInstance();
-         boolean result = false;
-         String timestamp = String.format("%4d%2d%02d_%02d%02d%02d",
+         String timestamp = String.format("%04d%02d%02d_%02d%02d%02d",
                  calendar.get(Calendar.YEAR),
                  calendar.get(Calendar.MONTH)+1,
                  calendar.get(Calendar.DAY_OF_MONTH),
@@ -253,8 +354,42 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                  calendar.get(Calendar.MINUTE),
                  calendar.get(Calendar.SECOND));
 
+         return timestamp;
+     }
+
+     private String buildLogFileName(String timestamp){
+         Calendar calendar = Calendar.getInstance();
          return "SkyLog_"+timestamp+"/";
      }
+
+     private String buildFixLog(){
+         StringBuilder sb = new StringBuilder("");
+         sb.append("设备厂商:"+BasicInfo.getDeviceBrand()+"\n");
+         sb.append("设备型号:"+BasicInfo.getSystemModel()+"\n");
+         sb.append("设备SN:"+BasicInfo.getSN()+"\n");
+         String[] imeis = BasicInfo.getIMEI();
+         if(imeis != null){
+             sb.append("设备IMEI:"+imeis[0]+" "+imeis[1]+" "+imeis[2]+"\n");
+         }else{
+             sb.append("设备IMEI: NULL"+"\n");
+         }
+         sb.append("Log时间:"+mLogStartTime+"-"+mLogEndTime+"\n");
+         sb.append("经度:"+mLongitude+" 纬度:"+mLatitude+"\n");
+         return sb.toString();
+     }
+
+     private void writeDescribe(String dir,String describe){
+         String content;
+         String fixcontent = buildFixLog();
+         if(!(TextUtils.isEmpty(describe))){
+             content = fixcontent+"描述:"+describe+"\n";
+         }else{
+             content = fixcontent;
+         }
+         MyFileModule.WriteFile(dir,"README.txt",content);
+         InitFixLogVariables();
+     }
+
      private void ShowLogDescribeDialog(final String dir){
          final EditText et = new EditText(this);
          new AlertDialog.Builder(this).setTitle(R.string.dialog_log_describe)
@@ -265,10 +400,53 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                      public void onClick(DialogInterface dialogInterface, int i) {
                          String describe = et.getText().toString();
                          if(!(TextUtils.isEmpty(describe))){
-                             MyFileModule.WriteFile(dir,"README.txt",describe);
+                             writeDescribe(dir,describe);
+                         }else{
+                             writeDescribe(dir,null);
                          }
                      }
-                 }).setNegativeButton(R.string.dialog_cancle_button,null).show();
+                 }).setNegativeButton(R.string.dialog_cancle_button, new DialogInterface.OnClickListener() {
+                     @Override
+                     public void onClick(DialogInterface dialog, int which) {
+                         writeDescribe(dir,null);
+                     }
+                 }).show();
+     }
+
+     private void modifyDescribe(String dir,String oldFixContent,String describe){
+         String content;
+         if(!(TextUtils.isEmpty(describe))){
+             content = oldFixContent+"描述:"+describe+"\n";
+         }else{
+             content = oldFixContent;
+         }
+         MyFileModule.WriteFile(dir,"README.txt",content);
+     }
+
+     private void ShowLogDescribeModifyDialog(final String dir,final String oldFixContent,String oldContent){
+         final EditText et = new EditText(this);
+         if(!TextUtils.isEmpty(oldContent)){
+             et.setText(oldContent);
+         }
+         new AlertDialog.Builder(this).setTitle(R.string.dialog_log_describe)
+                 .setView(et)
+                 .setCancelable(false)
+                 .setPositiveButton(R.string.dialog_yes_button, new DialogInterface.OnClickListener() {
+                     @Override
+                     public void onClick(DialogInterface dialogInterface, int i) {
+                         String describe = et.getText().toString();
+                         if(!(TextUtils.isEmpty(describe))){
+                             modifyDescribe(dir,oldFixContent,describe);
+                         }else{
+                             modifyDescribe(dir,oldFixContent,null);
+                         }
+                     }
+                 }).setNegativeButton(R.string.dialog_cancle_button, new DialogInterface.OnClickListener() {
+             @Override
+             public void onClick(DialogInterface dialog, int which) {
+                 modifyDescribe(dir,oldFixContent,null);
+             }
+         }).show();
      }
 
      private void sendCmd(int what,Object obj)
@@ -296,7 +474,9 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                      filename = fileArray.get(index);
                      if(filename.indexOf("mtklog")>-1){
                          MyFileModule.DeleteFile0rDir(filename, true);
-                         dstFilename = buildLFileName();
+
+                         mLogEndTime = buildLogTime();
+                         dstFilename = buildLogFileName(mLogEndTime);
                          MyFileModule.MoveFileOrDir(filename,dstFilename);
                          break;
                      }
@@ -444,20 +624,19 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
                      ArrayList<String> gzfileArray = new ArrayList<String>();
                      for (int index = 0; index < CheckedlistStr.size(); index++) {
-                         String[]  filelist = new String[1];
-                         filelist[0] = CheckedlistStr.get(index);
-                         if(filelist[0].indexOf(".gz")>-1){
-                             LogUtils.d(MainActivity.class,"gz文件，不需要压缩："+filelist[0]);
-                             gzfileArray.add(filelist[0]);
+                         String srcName = CheckedlistStr.get(index);
+                         if(srcName.indexOf(".gz")>-1){
+                             LogUtils.d(MainActivity.class,"gz文件，不需要压缩："+srcName);
+                             gzfileArray.add(srcName);
                          }else{
-                             String UploadFileName = buildZipFileName(filelist[0]);
+                             String UploadFileName = buildZipFileName(srcName);
                              String UploadFileFullName = MyFileModule.GetRootPath()+UploadFileName;
-                             boolean result = MyFileModule.ZipFiles(MyFileModule.GetRootPath(),filelist,UploadFileFullName);
+                             boolean result = MyFileModule.ZipFiles(MyFileModule.GetRootPath()+srcName,UploadFileFullName);
                              if(result == true){
-                                 LogUtils.i(MainActivity.class,"压缩文件"+filelist[0]+"成功！");
+                                 LogUtils.i(MainActivity.class,"压缩文件"+srcName+"成功！");
                                  gzfileArray.add(UploadFileName);
                              }else{
-                                 LogUtils.e(MainActivity.class,"压缩文件"+filelist[0]+"失败！");
+                                 LogUtils.e(MainActivity.class,"压缩文件"+srcName+"失败！");
                              }
                          }
                      }
@@ -569,27 +748,17 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
              } },1,1000);
      }
-     //获取基本信息
-     private void getbasicinfo(){
-         BasicInfo.getSN();
-         BasicInfo.getIMEI();
-         BasicInfo.getIMSI();
-         BasicInfo.getSystemVersion();
-         BasicInfo.getSystemModel();
-         BasicInfo.getDeviceBrand();
-         BasicInfo.getPLMNs();
-     }
 
      //获得位置信息
      private void getLocation() {
          mlocation = new MyLocation();
-         //获取cellid
-         MyLocation.CoarseLocation coarse_location = mlocation.get_coarse_location();
-         if((coarse_location != null)&&(coarse_location.type != 0xff)){
-             LogUtils.i(MainActivity.class,"get coarse location information!");
-         }else{
-             LogUtils.e(MainActivity.class,"not get coarse location information!");
-         }
+//         //获取不精确位置信息 cellid
+//         MyLocation.CoarseLocation coarse_location = mlocation.get_coarse_location();
+//         if((coarse_location != null)&&(coarse_location.type != 0xff)){
+//             LogUtils.i(MainActivity.class,"get coarse location information!");
+//         }else{
+//             LogUtils.e(MainActivity.class,"not get coarse location information!");
+//         }
          //获取经纬度
          if(mlocation.begin_fine_location() == true){
              create_location_timer();
@@ -614,6 +783,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                      LogUtils.e(MainActivity.class,"faild to get location information!");
                  }else{
                      LogUtils.i(MainActivity.class,"success to get location information!");
+                     mLongitude = mlocation.get_Longitude_result();
+                     mLatitude = mlocation.get_Latitude_result();
                      //mlocation.begin_detail_location(mlocation.get_Latitude_result(),mlocation.get_Longitude_result());
                  }
              }else{
@@ -623,10 +794,12 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                      location_timer = null;
                      mlocation.end_fine_location();
                      LogUtils.i(MainActivity.class,"success to get location information!");
+                     mLongitude = mlocation.get_Longitude_result();
+                     mLatitude = mlocation.get_Latitude_result();
                      //mlocation.begin_detail_location(mlocation.get_Latitude_result(),mlocation.get_Longitude_result());
                  }
              }
-         } },1,2000);
+         } },1,1000);
 
      }
 
@@ -641,7 +814,9 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
          } else if(finger.indexOf("WIKO/W_K600ID/W_K600:8.1.0/O11019/1542601555:userdebug/release-keys") > -1){
            filter_name = "catcher_filter_1_ulwctg_n_Skyroam_Filter_Wiko_UserDebug_P52.bin";
          } else if(finger.indexOf("TECNO/H624/TECNO-KB8:9/PPR1.180610.011/BNPQ-181211V37:userdebug/release-keys") > -1) {
-             filter_name = "catcher_filter_1_ulwtg_n_Skyroam_Filter_TECHNO_UserDebug.bin";
+             filter_name = "catcher_filter_1_ulwctg_n_Skyroam_Filter_TECNO_V373_P2.bin";
+         } else if(finger.indexOf("WIKO/W-V600ID/W-V600:8.1.0/O11019/1545981859:user/release-keys")>-1){
+             filter_name = "catcher_filter_1_ulwctg_n_Skyroam_Filter_Wiko_V600_V241_P6_User.bin";
          } else{
              LogUtils.e(MainActivity.class,"unknown finger:"+finger);
          }
@@ -650,11 +825,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
      }
 
      private void start_catch_log(){
-
-         getbasicinfo();
-         //getLocation();
+         getLocation();
          start_logging_timer();
-
          new Thread() {
              @Override
              public void run() {
@@ -662,7 +834,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                  String filter_name = select_filter();
                  if((MyMtkLogger.CopyFilterFile(MainActivity.this,filter_name) == true)
                          &&(MyMtkLogger.StartmMtkLog(MainActivity.this,filter_name) == true)) {
-                     ;
+                     mLogStartTime = buildLogTime();;
                  }else {
                      LogUtils.e(MainActivity.class, "begin to catch log failed!");
                      stop_loggging_timer(true);
@@ -686,6 +858,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
      //上传日志 上传的文件先打包，然后删除文件，上传压缩包
      private void UploadBtnHandle(){
+         LogUtils.i(MainActivity.class,"UploadBtnHandle");
          if(mHandler != null){
              UploadFiles();
          }
@@ -695,6 +868,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
      private void CatchBtnHandle(){
          //catch log的时候首先将filter bin 写到sd卡
          logging_count++;
+         LogUtils.i(MainActivity.class,"CatchBtnHandle:"+logging_count);
          if (logging_count % 2 == 1) {
              start_catch_log();
          }

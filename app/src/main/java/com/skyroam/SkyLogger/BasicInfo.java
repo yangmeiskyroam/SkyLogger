@@ -40,7 +40,7 @@ public class BasicInfo {
 
     public static String getSN(){
         String sn = getProperty("sys.skyroam.osi.sn","unknown");
-        LogUtils.i(BasicInfo.class,"sn:"+sn);
+        LogUtils.d(BasicInfo.class,"sn:"+sn);
         return sn;
     }
 
@@ -56,17 +56,23 @@ public class BasicInfo {
                 String imei0 = telephonyManager.getImei(0);
                 if(imei0 != null) {
                     imeis[index++] = imei0;
-                    LogUtils.i(BasicInfo.class,"imei0:"+imei0);
+                    LogUtils.d(BasicInfo.class,"imei0:"+imei0);
+                }else{
+                    imeis[index++] = "000000000000000";
                 }
                 String imei1 = telephonyManager.getImei(1);
                 if(imei1 != null) {
                     imeis[index++] = imei1;
-                    LogUtils.i(BasicInfo.class,"imei1:"+imei1);
+                    LogUtils.d(BasicInfo.class,"imei1:"+imei1);
+                }else{
+                    imeis[index++] = "000000000000000";
                 }
                 String imei2 = telephonyManager.getImei(2);
                 if(imei2 != null) {
                     imeis[index++] = imei2;
-                    LogUtils.i(BasicInfo.class,"imei2:"+imei2);
+                    LogUtils.d(BasicInfo.class,"imei2:"+imei2);
+                }else{
+                    imeis[index++] = "000000000000000";
                 }
 
                 return imeis;
@@ -104,7 +110,7 @@ public class BasicInfo {
                                 subscriberId = (String) method.invoke(telephonyManager, sir.getSubscriptionId());
                                 if(subscriberId != null){
                                     imsis[imsi_index++] = subscriberId;
-                                    LogUtils.i(BasicInfo.class,"imsi"+sir.getSimSlotIndex()+":"+subscriberId);
+                                    LogUtils.d(BasicInfo.class,"imsi"+sir.getSimSlotIndex()+":"+subscriberId);
                                 }
                             } catch (Exception e) {
                                 e.printStackTrace();
@@ -135,27 +141,27 @@ public class BasicInfo {
 
     //系统版本
     public static String getSystemVersion() {
-        LogUtils.i(BasicInfo.class,"system version:"+android.os.Build.VERSION.RELEASE);
+        LogUtils.d(BasicInfo.class,"system version:"+android.os.Build.VERSION.RELEASE);
         return android.os.Build.VERSION.RELEASE;
     }
 
     public static String ModemVersion(){
         String modem_ver = getProperty("gsm.version.baseband","unknown");
-        LogUtils.i(BasicInfo.class,"modem version:"+modem_ver);
+        LogUtils.d(BasicInfo.class,"modem version:"+modem_ver);
 
         return modem_ver;
     }
 
     public static String getFinger(){
         String finger = getProperty("ro.build.fingerprint","unknown");
-        LogUtils.i(BasicInfo.class,"finger:"+finger);
+        LogUtils.d(BasicInfo.class,"finger:"+finger);
 
         return finger;
     }
 
     public static String getMtkLogStatus(){
         String status = getProperty("debug.SkyLogger.Running","unknown");
-        LogUtils.i(BasicInfo.class,"SkyLoggerStatus:"+status);
+        LogUtils.d(BasicInfo.class,"SkyLoggerStatus:"+status);
 
         return status;
     }
@@ -165,13 +171,13 @@ public class BasicInfo {
     }
     // 手机型号
     public static String getSystemModel() {
-        LogUtils.i(BasicInfo.class,"system model:"+android.os.Build.MODEL);
+        LogUtils.d(BasicInfo.class,"system model:"+android.os.Build.MODEL);
         return android.os.Build.MODEL;
     }
 
     //手机厂商
     public static String getDeviceBrand() {
-        LogUtils.i(BasicInfo.class,"system brand:"+android.os.Build.BRAND);
+        LogUtils.d(BasicInfo.class,"system brand:"+android.os.Build.BRAND);
         return android.os.Build.BRAND;
     }
 
@@ -197,7 +203,7 @@ public class BasicInfo {
                                 if ((nwopertor != null)) {
                                     if(nwopertor.length() > 0) {
                                         plmns[plmn_index++] = nwopertor;
-                                        LogUtils.i(BasicInfo.class,"plmn" + sir.getSimSlotIndex() + ":" + nwopertor);
+                                        LogUtils.d(BasicInfo.class,"plmn" + sir.getSimSlotIndex() + ":" + nwopertor);
                                     }
                                 }else{
                                     LogUtils.e(BasicInfo.class,"nwopertor == null");
