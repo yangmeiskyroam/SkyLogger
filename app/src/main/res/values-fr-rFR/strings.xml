@@ -22,4 +22,8 @@
     <string name="dialog_yes_button">Déterminer</string>
     <string name="dialog_cancle_button">Annuler</string>
     <string name="dialog_log_describe">Description du journal</string>
+    <string name="MTKlog_mode">MTKlog Entrée en vigueur </string>
+    <string name="filter_not_found">filter tidak ditemukan</string>
+    <string name="device_info">DeviceInfo</string>
+    <string name="no_filter_info">Le fichier de filtre correspondant au système est introuvable. Veuillez arrêter le journal 10 secondes après le début du chronomètre et télécharger tous les journaux！</string>
 </resources>

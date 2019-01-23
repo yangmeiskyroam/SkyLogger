@@ -22,4 +22,8 @@
     <string name="dialog_yes_button">Determinar</string>
     <string name="dialog_cancle_button">Cancelar</string>
     <string name="dialog_log_describe">Log descrição</string>
+    <string name="MTKlog_mode">O modelo EM vigor mtklog</string>
+    <string name="filter_not_found">filter não encontrado</string>
+    <string name="device_info">DeviceInfo</string>
+    <string name="no_filter_info">O arquivo de filtro correspondente ao sistema não foi encontrado. Pare o log após 10 segundos a partir do início do temporizador e carregue todos os registros！</string>
 </resources>

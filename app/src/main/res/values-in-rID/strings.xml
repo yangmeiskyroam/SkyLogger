@@ -22,4 +22,8 @@
     <string name="dialog_yes_button">Tentukan</string>
     <string name="dialog_cancle_button">Batalkan</string>
     <string name="dialog_log_describe">Deskripsi log</string>
+    <string name="MTKlog_mode">Mode Mtklog mulai berlaku</string>
+    <string name="filter_not_found">filter tidak ditemukan</string>
+    <string name="device_info">Informasi perangkat</string>
+    <string name="no_filter_info">File filter yang sesuai dengan sistem tidak ditemukan. Harap hentikan log setelah 10 detik dari awal timer dan unggah semua log！</string>
 </resources>

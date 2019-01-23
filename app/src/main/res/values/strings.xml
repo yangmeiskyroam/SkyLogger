@@ -21,4 +21,8 @@
     <string name="dialog_yes_button">Yes</string>
     <string name="dialog_cancle_button">No</string>
     <string name="dialog_log_describe">Log description</string>
+    <string name="MTKlog_mode">MTKlog mode effective </string>
+    <string name="filter_not_found">filter not found </string>
+    <string name="device_info">DeviceInfo</string>
+    <string name="no_filter_info">The filter file corresponding to the system is not found. Please stop logging after 10 seconds from the start of the timer, and upload all log files!</string>
 </resources>

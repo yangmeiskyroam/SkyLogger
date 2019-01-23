@@ -11,7 +11,7 @@ import android.telephony.TelephonyManager;
 import java.lang.reflect.Method;
 import java.util.List;
 
-public class BasicInfo {
+public class DeviceInfoUtils {
     private static final int MAX_CARD_NUM = 3;
 
     private static String getProperty(String key, String defaultValue) {
@@ -21,7 +21,7 @@ public class BasicInfo {
             value = (String)(get.invoke(c, key, "unknown" ));
         } catch (Exception e) {
             e.printStackTrace();
-            LogUtils.e(BasicInfo.class,"获取属性失败："+e.toString());
+            LogUtils.e(DeviceInfoUtils.class,"获取属性失败："+e.toString());
         }finally {
             return value;
         }
@@ -33,14 +33,14 @@ public class BasicInfo {
             set.invoke(c, key, value );
         } catch (Exception e) {
             e.printStackTrace();
-            LogUtils.e(BasicInfo.class,"设置属性失败："+e.toString());
+            LogUtils.e(DeviceInfoUtils.class,"设置属性失败："+e.toString());
         }
     }
 
 
     public static String getSN(){
         String sn = getProperty("sys.skyroam.osi.sn","unknown");
-        LogUtils.d(BasicInfo.class,"sn:"+sn);
+        LogUtils.d(DeviceInfoUtils.class,"sn:"+sn);
         return sn;
     }
 
@@ -56,21 +56,21 @@ public class BasicInfo {
                 String imei0 = telephonyManager.getImei(0);
                 if(imei0 != null) {
                     imeis[index++] = imei0;
-                    LogUtils.d(BasicInfo.class,"imei0:"+imei0);
+                    LogUtils.d(DeviceInfoUtils.class,"imei0:"+imei0);
                 }else{
                     imeis[index++] = "000000000000000";
                 }
                 String imei1 = telephonyManager.getImei(1);
                 if(imei1 != null) {
                     imeis[index++] = imei1;
-                    LogUtils.d(BasicInfo.class,"imei1:"+imei1);
+                    LogUtils.d(DeviceInfoUtils.class,"imei1:"+imei1);
                 }else{
                     imeis[index++] = "000000000000000";
                 }
                 String imei2 = telephonyManager.getImei(2);
                 if(imei2 != null) {
                     imeis[index++] = imei2;
-                    LogUtils.d(BasicInfo.class,"imei2:"+imei2);
+                    LogUtils.d(DeviceInfoUtils.class,"imei2:"+imei2);
                 }else{
                     imeis[index++] = "000000000000000";
                 }
@@ -82,7 +82,7 @@ public class BasicInfo {
 
         } catch (Exception e) {
             e.printStackTrace();
-            LogUtils.e(BasicInfo.class,"get imei exception : " + e.toString());
+            LogUtils.e(DeviceInfoUtils.class,"get imei exception : " + e.toString());
             return null;
         }
     }
@@ -110,11 +110,11 @@ public class BasicInfo {
                                 subscriberId = (String) method.invoke(telephonyManager, sir.getSubscriptionId());
                                 if(subscriberId != null){
                                     imsis[imsi_index++] = subscriberId;
-                                    LogUtils.d(BasicInfo.class,"imsi"+sir.getSimSlotIndex()+":"+subscriberId);
+                                    LogUtils.d(DeviceInfoUtils.class,"imsi"+sir.getSimSlotIndex()+":"+subscriberId);
                                 }
                             } catch (Exception e) {
                                 e.printStackTrace();
-                                LogUtils.e(BasicInfo.class,"get imsi exception : " + e.toString());
+                                LogUtils.e(DeviceInfoUtils.class,"get imsi exception : " + e.toString());
                             }
                         }
                     }
@@ -122,46 +122,46 @@ public class BasicInfo {
                 }
                 else
                 {
-                    LogUtils.e(BasicInfo.class,"subInfoList is null");
+                    LogUtils.e(DeviceInfoUtils.class,"subInfoList is null");
                     return null;
                 }
             }
             else
             {
-                LogUtils.e(BasicInfo.class,"subManager is null or telephonyManager is null");
+                LogUtils.e(DeviceInfoUtils.class,"subManager is null or telephonyManager is null");
                 return null;
             }
         }
         else
         {
-            LogUtils.e(BasicInfo.class,"no READ_PHONE_STATE permission");
+            LogUtils.e(DeviceInfoUtils.class,"no READ_PHONE_STATE permission");
             return null;
         }
     }
 
     //系统版本
     public static String getSystemVersion() {
-        LogUtils.d(BasicInfo.class,"system version:"+android.os.Build.VERSION.RELEASE);
+        LogUtils.d(DeviceInfoUtils.class,"system version:"+android.os.Build.VERSION.RELEASE);
         return android.os.Build.VERSION.RELEASE;
     }
 
     public static String ModemVersion(){
         String modem_ver = getProperty("gsm.version.baseband","unknown");
-        LogUtils.d(BasicInfo.class,"modem version:"+modem_ver);
+        LogUtils.d(DeviceInfoUtils.class,"modem version:"+modem_ver);
 
         return modem_ver;
     }
 
     public static String getFinger(){
         String finger = getProperty("ro.build.fingerprint","unknown");
-        LogUtils.d(BasicInfo.class,"finger:"+finger);
+        LogUtils.d(DeviceInfoUtils.class,"finger:"+finger);
 
         return finger;
     }
 
     public static String getMtkLogStatus(){
         String status = getProperty("debug.SkyLogger.Running","unknown");
-        LogUtils.d(BasicInfo.class,"SkyLoggerStatus:"+status);
+        LogUtils.d(DeviceInfoUtils.class,"SkyLoggerStatus:"+status);
 
         return status;
     }
@@ -171,13 +171,13 @@ public class BasicInfo {
     }
     // 手机型号
     public static String getSystemModel() {
-        LogUtils.d(BasicInfo.class,"system model:"+android.os.Build.MODEL);
+        LogUtils.d(DeviceInfoUtils.class,"system model:"+android.os.Build.MODEL);
         return android.os.Build.MODEL;
     }
 
     //手机厂商
     public static String getDeviceBrand() {
-        LogUtils.d(BasicInfo.class,"system brand:"+android.os.Build.BRAND);
+        LogUtils.d(DeviceInfoUtils.class,"system brand:"+android.os.Build.BRAND);
         return android.os.Build.BRAND;
     }
 
@@ -203,28 +203,28 @@ public class BasicInfo {
                                 if ((nwopertor != null)) {
                                     if(nwopertor.length() > 0) {
                                         plmns[plmn_index++] = nwopertor;
-                                        LogUtils.d(BasicInfo.class,"plmn" + sir.getSimSlotIndex() + ":" + nwopertor);
+                                        LogUtils.d(DeviceInfoUtils.class,"plmn" + sir.getSimSlotIndex() + ":" + nwopertor);
                                     }
                                 }else{
-                                    LogUtils.e(BasicInfo.class,"nwopertor == null");
+                                    LogUtils.e(DeviceInfoUtils.class,"nwopertor == null");
                                 }
                             } catch (Exception e) {
                                 e.printStackTrace();
-                                LogUtils.e(BasicInfo.class,"get plmn exception : " + e.toString());
+                                LogUtils.e(DeviceInfoUtils.class,"get plmn exception : " + e.toString());
                             }
                         }
                     }
                     return plmns;
                 } else {
-                    LogUtils.e(BasicInfo.class,"subInfoList is null");
+                    LogUtils.e(DeviceInfoUtils.class,"subInfoList is null");
                     return null;
                 }
             } else {
-                LogUtils.e(BasicInfo.class,"subManager is null or telephonyManager is null");
+                LogUtils.e(DeviceInfoUtils.class,"subManager is null or telephonyManager is null");
                 return null;
             }
         } else {
-            LogUtils.e(BasicInfo.class,"no READ_PHONE_STATE permission");
+            LogUtils.e(DeviceInfoUtils.class,"no READ_PHONE_STATE permission");
             return null;
         }
     }

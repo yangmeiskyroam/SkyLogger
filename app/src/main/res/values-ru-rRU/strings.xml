@@ -22,4 +22,8 @@
     <string name="dialog_yes_button">определить</string>
     <string name="dialog_cancle_button">отменен</string>
     <string name="dialog_log_describe">Описание журнала</string>
+    <string name="MTKlog_mode">Программа mtklog вступила в силу</string>
+    <string name="filter_not_found">filter не найден</string>
+    <string name="device_info">DeviceInfo</string>
+    <string name="no_filter_info">Файл фильтра, соответствующий системе, не найден. Остановите журнал через 10 секунд после запуска таймера и загрузите все журналы！</string>
 </resources>

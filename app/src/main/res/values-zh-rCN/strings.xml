@@ -22,4 +22,8 @@
     <string name="dialog_yes_button">确定</string>
     <string name="dialog_cancle_button">取消</string>
     <string name="dialog_log_describe">日志描述</string>
+    <string name="MTKlog_mode">MTKLog 模式生效</string>
+    <string name="filter_not_found">未找到对应的filter </string>
+    <string name="device_info">设备信息</string>
+    <string name="no_filter_info">未找到系统对应的filter文件,请在计时器开始10秒后停止抓取log,并上传所有log！</string>
 </resources>

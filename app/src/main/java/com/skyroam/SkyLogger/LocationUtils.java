@@ -30,15 +30,15 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
-public class MyLocation {
+public class LocationUtils {
     //http://api.map.baidu.com/geocoder?output=json&location=39.913542,116.379763&ak=esNPFDwwsXWtsQfw4NMNmur1
-    private final String BAIDU_GPS_PREFIX = "http://api.map.baidu.com/geocoder?output=json&location=";
-    private final String BAIDU_GPS_SUFFIX = "&ak=esNPFDwwsXWtsQfw4NMNmur1";
+    private static final String BAIDU_GPS_PREFIX = "http://api.map.baidu.com/geocoder?output=json&location=";
+    private static final String BAIDU_GPS_SUFFIX = "&ak=esNPFDwwsXWtsQfw4NMNmur1";
 
-    private LocationManager locationManager;
-    private double Latitude;
-    private double Longitude;
-    private String detail_Location_string;
+    private static LocationManager locationManager;
+    private static double Latitude;
+    private static double Longitude;
+    private static String detail_Location_string;
     public class CoarseLocation{
         public int type;//0：gsm  1：cdma 2：wcdma 3:lte
         public int lac,cid;
@@ -48,24 +48,19 @@ public class MyLocation {
         }
     }
 
-    public MyLocation() {
-        this.detail_Location_string = null;
-        Latitude = Longitude = 0;
-    }
-
     private void set_detail_location(String location) {
         detail_Location_string = location;
-        LogUtils.i(MyLocation.class,"the detail location is :"+location);
+        LogUtils.i(LocationUtils.class,"the detail location is :"+location);
     }
 
     private void set_fine_location(Location location) {
         Latitude = location.getLatitude();
         Longitude = location.getLongitude();
-        LogUtils.i(MyLocation.class,"get fine location,Latitude:"+Latitude+" Longitude:"+Longitude);
+        LogUtils.i(LocationUtils.class,"get fine location,Latitude:"+Latitude+" Longitude:"+Longitude);
     }
 
     // Gps 消息监听器
-    private  LocationListener locationListener = new LocationListener() {
+    private LocationListener locationListener = new LocationListener() {
 
         // 位置发生改变后调用
         public void onLocationChanged(Location location) {
@@ -75,16 +70,16 @@ public class MyLocation {
         }
         // provider 被用户关闭后调用
         public void onProviderDisabled(String provider) {
-            LogUtils.i(MyLocation.class,"onProviderDisabled");
+            LogUtils.i(LocationUtils.class,"onProviderDisabled");
         }
 
         // provider 被用户开启后调用
         public void onProviderEnabled(String provider) {
-            LogUtils.i(MyLocation.class,"onProviderEnabled");
+            LogUtils.i(LocationUtils.class,"onProviderEnabled");
         }
         // provider 状态变化时调用
         public void onStatusChanged(String provider, int status,Bundle extras) {
-            LogUtils.i(MyLocation.class,"onStatusChanged");
+            LogUtils.i(LocationUtils.class,"onStatusChanged");
         }
     };
 
@@ -123,7 +118,7 @@ public class MyLocation {
         return locationManager.getBestProvider(criteria, true);
     }
 
-    private static void getJSONData(final Handler mHandler, final String urlPath) {
+    private void getJSONData(final Handler mHandler, final String urlPath) {
 
         new Thread() {
             @Override
@@ -216,7 +211,7 @@ public class MyLocation {
             TelephonyManager telephonyManager = (TelephonyManager) MainActivity.getContext().getSystemService(MainActivity.getContext().TELEPHONY_SERVICE);
             List<CellInfo> cellInfoList = telephonyManager.getAllCellInfo();
             if(cellInfoList != null){
-                LogUtils.d(MyLocation.class,"cellInfoList size is:"+cellInfoList.size());
+                LogUtils.d(LocationUtils.class,"cellInfoList size is:"+cellInfoList.size());
                 for (CellInfo cellInfo : cellInfoList){
                     if (cellInfo instanceof CellInfoGsm){
                         CellInfoGsm gsmcell = (CellInfoGsm)cellInfo;
@@ -225,16 +220,16 @@ public class MyLocation {
                         location.lac = gsmcell.getCellIdentity().getLac();
                         location.mcc = gsmcell.getCellIdentity().getMcc();
                         location.mnc = gsmcell.getCellIdentity().getMnc();
-                        LogUtils.i(MyLocation.class,"gsm cellid:"+location.cid+"  lac:"+location.lac);
-                        LogUtils.i(MyLocation.class,"gsm mcc:"+location.mcc+"  mnc:"+location.mnc);
+                        LogUtils.i(LocationUtils.class,"gsm cellid:"+location.cid+"  lac:"+location.lac);
+                        LogUtils.i(LocationUtils.class,"gsm mcc:"+location.mcc+"  mnc:"+location.mnc);
                     }else if(cellInfo instanceof CellInfoCdma){
                         CellInfoCdma cdmacell = (CellInfoCdma)cellInfo;
                         location.type = 1;
                         location.mnc = cdmacell.getCellIdentity().getSystemId();
                         location.cid = cdmacell.getCellIdentity().getBasestationId();
                         location.lac = cdmacell.getCellIdentity().getNetworkId();
-                        LogUtils.i(MyLocation.class,"cdma cid:"+location.cid+"  lac:"+location.lac);
-                        LogUtils.i(MyLocation.class,"cdma mnc:"+location.mnc);
+                        LogUtils.i(LocationUtils.class,"cdma cid:"+location.cid+"  lac:"+location.lac);
+                        LogUtils.i(LocationUtils.class,"cdma mnc:"+location.mnc);
                     }else if(cellInfo instanceof CellInfoWcdma){
                         CellInfoWcdma wcdmacell = (CellInfoWcdma)cellInfo;
                         location.type = 2;
@@ -242,8 +237,8 @@ public class MyLocation {
                         location.lac = wcdmacell.getCellIdentity().getLac();
                         location.mcc = wcdmacell.getCellIdentity().getMcc();
                         location.mnc = wcdmacell.getCellIdentity().getMnc();
-                        LogUtils.i(MyLocation.class,"wcdma cellid:"+location.cid+"  lac:"+location.lac);
-                        LogUtils.i(MyLocation.class,"wcdma mcc:"+location.mcc+"  mnc:"+location.mnc);
+                        LogUtils.i(LocationUtils.class,"wcdma cellid:"+location.cid+"  lac:"+location.lac);
+                        LogUtils.i(LocationUtils.class,"wcdma mcc:"+location.mcc+"  mnc:"+location.mnc);
 
                         return location;
                     }else if (cellInfo instanceof CellInfoLte){
@@ -252,37 +247,41 @@ public class MyLocation {
                     }
                 }
             }else{
-                LogUtils.e(MyLocation.class,"cellInfoList is null");
+                LogUtils.e(LocationUtils.class,"cellInfoList is null");
             }
         } else{
-            LogUtils.e(MyLocation.class,"no permission:READ_PHONE_STATE");
+            LogUtils.e(LocationUtils.class,"no permission:READ_PHONE_STATE");
         }
         return null;
     }
 
     public boolean begin_fine_location() {
         if (PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(MainActivity.getContext(), Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+            detail_Location_string = null;
+            Latitude = Longitude = 0;
+
             // 获取 LocationManager 服务
             locationManager = (LocationManager) (LocationManager) MainActivity.getContext().getSystemService(Context.LOCATION_SERVICE);
             // 获取 Location Provider
             String provider = getProvider();
             if (provider != null) {
-                LogUtils.i(MyLocation.class,"fine location provider: " + provider);
+                LogUtils.i(LocationUtils.class,"fine location provider: " + provider);
                 if (check_openGPS() == true) {
-                    LogUtils.i(MyLocation.class,"fine location already open GPS!");
+                    LogUtils.i(LocationUtils.class,"fine location already open GPS!");
                     //注册监听函数
                     locationManager.requestLocationUpdates(provider, 2000, (float) 0.1, locationListener);
                     return true;
 
                 } else {
-                    LogUtils.i(MyLocation.class,"fine locatin do not open GPS!");
+                    LogUtils.i(LocationUtils.class,"fine locatin do not open GPS!");
                 }
             } else {
-                LogUtils.i(MyLocation.class,"fine locatin do not have provider!");
+                LogUtils.i(LocationUtils.class,"fine locatin do not have provider!");
             }
         }
         else{
-            LogUtils.i(MyLocation.class,"fine locatin do not have permission!");
+            LogUtils.i(LocationUtils.class,"fine locatin do not have permission!");
         }
 
         return false;

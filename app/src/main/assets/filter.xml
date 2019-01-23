@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<filters verno="10000001">
+  <filter id="1"> 
+    <finger>BLUBOO/S3/S3:8.1.0/O11019/1532067291:userdebug/release-keys</finger>  
+    <file>catcher_filter_1_ulwctg_n_Skyroam_Filter_S3_L4C_OTA_NAS.bin</file> 
+  </filter>  
+  <filter id="2"> 
+    <finger>WIKO/W_K600ID/W_K600:8.1.0/O11019/1544008159:user/release-keys</finger>  
+    <file>catcher_filter_1_ulwctg_n_Skyroam_Filter_Wiko_UserDebug_User_P5.bin</file> 
+  </filter>  
+  <filter id="3"> 
+    <finger>WIKO/W_K600ID/W_K600:8.1.0/O11019/1542601555:userdebug/release-keys</finger>  
+    <file>catcher_filter_1_ulwctg_n_Skyroam_Filter_Wiko_UserDebug_P52.bin</file> 
+  </filter>  
+  <filter id="4"> 
+    <finger>TECNO/H624/TECNO-KB8:9/PPR1.180610.011/BNPQ-181211V37:userdebug/release-keys</finger>  
+    <file>catcher_filter_1_ulwctg_n_Skyroam_Filter_TECNO_V373_P2.bin</file> 
+  </filter>  
+  <filter id="5"> 
+    <finger>WIKO/W-V600ID/W-V600:8.1.0/O11019/1545981859:user/release-keys</finger>  
+    <file>catcher_filter_1_ulwctg_n_Skyroam_Filter_Wiko_V600_V241_P6_User.bin</file> 
+  </filter>  
+  <filter id="6"> 
+    <finger>TECNO/H624/TECNO-KB8:9/PPR1.180610.011/BNPQ-190102V65:user/release-keys</finger>  
+    <file>catcher_filter_1_ulwctg_n_Skyroam_Filter_TECNO_V393T1_USER.bin</file> 
+  </filter> 
+  <filter id="7">
+    <finger>WIKO/W-V600ID/W-V600:8.1.0/O11019/1539241059:user/release-keys</finger>  
+    <file>catcher_filter_1_ulwctg_n_Skyroam_Filter_Wiko_V600_V241_P4_User.bin</file> 
+  </filter> 
+</filters>

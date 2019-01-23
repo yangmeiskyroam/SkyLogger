@@ -22,4 +22,8 @@
     <string name="dialog_yes_button">Determinar</string>
     <string name="dialog_cancle_button">Cancelar</string>
     <string name="dialog_log_describe">Descripción del registro</string>
+    <string name="MTKlog_mode">MTKlog modo de entrada en vigor </string>
+    <string name="filter_not_found">no encontrado</string>
+    <string name="device_info">DeviceInfo</string>
+    <string name="no_filter_info">No se encuentra el archivo de filtro correspondiente al sistema. Detenga el registro después de 10 segundos desde el inicio del temporizador y cargue todos los registros！</string>
 </resources>

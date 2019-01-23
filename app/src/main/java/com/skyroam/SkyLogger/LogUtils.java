@@ -18,20 +18,20 @@ import org.slf4j.LoggerFactory;
 public class LogUtils {
      public static boolean isShowLog = true;
      private  static String getAppName() {
-          try {
-               PackageManager packageManager = MainActivity.getContext().getPackageManager();
-               PackageInfo packageInfo = packageManager.getPackageInfo(MainActivity.getContext().getPackageName(), 0);
-               int labelRes = packageInfo.applicationInfo.labelRes;
-               return MainActivity.getContext().getResources().getString(labelRes);
-          }catch (Exception e) {
-               e.printStackTrace();
-          }
+//          try {
+//               PackageManager packageManager = MainActivity.getContext().getPackageManager();
+//               PackageInfo packageInfo = packageManager.getPackageInfo(MainActivity.getContext().getPackageName(), 0);
+//               int labelRes = packageInfo.applicationInfo.labelRes;
+//               return MainActivity.getContext().getResources().getString(labelRes);
+//          }catch (Exception e) {
+//               e.printStackTrace();
+//          }
 
-          return null;
+          return "SkyLogger";
      }
 
      private static void writeToFile(char type, String tag, String msg) {
-         MyFileModule fileModule = new MyFileModule();
+         FileUtils fileModule = new FileUtils();
          String logPath = fileModule.GetRootPath();
          String fileName = logPath + getAppName() + ".log";
          File file = new File(logPath);

@@ -1,28 +1,6 @@
 package com.skyroam.SkyLogger;
 
 import android.os.Environment;
-import android.os.Handler;
-import android.os.Message;
-
-import com.alibaba.sdk.android.oss.ClientException;
-import com.alibaba.sdk.android.oss.OSS;
-import com.alibaba.sdk.android.oss.OSSClient;
-import com.alibaba.sdk.android.oss.ServiceException;
-import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
-import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
-import com.alibaba.sdk.android.oss.common.OSSConstants;
-import com.alibaba.sdk.android.oss.common.auth.OSSAuthCredentialsProvider;
-import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
-import com.alibaba.sdk.android.oss.common.auth.OSSFederationCredentialProvider;
-import com.alibaba.sdk.android.oss.common.auth.OSSFederationToken;
-import com.alibaba.sdk.android.oss.common.utils.IOUtils;
-import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
-import com.alibaba.sdk.android.oss.model.PutObjectRequest;
-import com.alibaba.sdk.android.oss.model.PutObjectResult;
-import com.alibaba.sdk.android.oss.model.ResumableUploadRequest;
-import com.alibaba.sdk.android.oss.model.ResumableUploadResult;
-
-import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -30,18 +8,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.security.MessageDigest;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-public class MyFileModule{
+public class FileUtils {
     private static long getFolderSize(File file) {
         long size = 0;
         try{
@@ -78,7 +51,7 @@ public class MyFileModule{
                 }
             }
         }catch (Exception e){
-            LogUtils.e(MyFileModule.class,"getFileOrFolderSize failed!"+e.toString());
+            LogUtils.e(FileUtils.class,"getFileOrFolderSize failed!"+e.toString());
             e.printStackTrace();
         }
 
@@ -116,7 +89,7 @@ public class MyFileModule{
                     deleteDirectory(fullname,keep_key_log);
                 }
             }else {
-                LogUtils.e(MyFileModule.class,"要删除的文件：" + filename + "不存在");
+                LogUtils.e(FileUtils.class,"要删除的文件：" + filename + "不存在");
             }
         }
     }
@@ -126,37 +99,49 @@ public class MyFileModule{
         // 如果文件路径所对应的文件存在，并且是一个文件，则直接删除
         if (file.exists() && file.isFile()) {
 
-            if(fileFullName.indexOf(".bin") > -1){
+            if(LoggingUtils.isSkyLoggingMode(MainActivity.getContext()) == false){
+                if(keep_key_log == true)
                     return true;
-            }
+            }else{
+                if(LoggingUtils.getFilterName().equals("null")){
+                    if(keep_key_log == true) {
+                        if(fileFullName.indexOf("/mdlog") > -1) {
+                            if ((fileFullName.indexOf(".EDB") > -1)
+                                ||(fileFullName.indexOf("version_info.txt") > -1)) {
+                                return true;
+                            }
+                        }
 
-            if(keep_key_log == true) {
-                if(fileFullName.indexOf("SkyLogger.log") > -1){
-                    return true;
-                }
-
-                if(fileFullName.indexOf("/mdlog") > -1) {
-                    if ((fileFullName.indexOf(".muxz") > -1)
-                            || (fileFullName.indexOf("muxz.tmp") > -1)
-                            ||(fileFullName.indexOf("version_info.txt") > -1)) {
-                        return true;
+                        if(fileFullName.indexOf("/mobilelog") > -1) {
+                            return true;
+                        }
                     }
-                }
+                }else{
+                    if(keep_key_log == true) {
+                        if(fileFullName.indexOf("/mdlog") > -1) {
+                            if ((fileFullName.indexOf(".muxz") > -1)
+                                    || (fileFullName.indexOf("muxz.tmp") > -1)
+                                    ||(fileFullName.indexOf("version_info.txt") > -1)) {
+                                return true;
+                            }
+                        }
 
-                if((fileFullName.indexOf("/mobilelog") > -1)
-                        || (fileFullName.indexOf("/netlog") > -1)){
-                    return true;
+                        if((fileFullName.indexOf("/mobilelog") > -1)
+                                || (fileFullName.indexOf("/netlog") > -1)){
+                            return true;
+                        }
+                    }
                 }
             }
 
             if (file.delete()) {
                 return true;
             } else {
-                LogUtils.e(MyFileModule.class,"删除单个文件" + fileFullName + "失败！");
+                LogUtils.e(FileUtils.class,"删除单个文件" + fileFullName + "失败！");
                 return false;
             }
         } else {
-            LogUtils.e(MyFileModule.class,"删除单个文件失败：" + fileFullName + "不存在！");
+            LogUtils.e(FileUtils.class,"删除单个文件失败：" + fileFullName + "不存在！");
             return false;
         }
     }
@@ -168,7 +153,7 @@ public class MyFileModule{
         File dirFile = new File(fulldir);
         // 如果dir对应的文件不存在，或者不是一个目录，则退出
         if ((!dirFile.exists()) || (!dirFile.isDirectory())) {
-            LogUtils.e(MyFileModule.class,"删除目录失败：" + fulldir + "不存在！");
+            LogUtils.e(FileUtils.class,"删除目录失败：" + fulldir + "不存在！");
             return false;
         }
         boolean flag = true;
@@ -189,18 +174,18 @@ public class MyFileModule{
             }
         }
         if (!flag) {
-            LogUtils.e(MyFileModule.class,"删除目录" + fulldir + "失败！");
+            LogUtils.e(FileUtils.class,"删除目录" + fulldir + "失败！");
             return false;
         }
 
         //文件夹为空
         if(dirFile.listFiles().length  > 0){
-            LogUtils.d(MyFileModule.class,"文件夹"+dirFile.getName()+"不为空，不能删除");
+            LogUtils.d(FileUtils.class,"文件夹"+dirFile.getName()+"不为空，不能删除");
             return true;
         }else{
             // 删除当前目录
             if (dirFile.delete()) {
-                LogUtils.d(MyFileModule.class,"删除目录" + fulldir + "成功！");
+                LogUtils.d(FileUtils.class,"删除目录" + fulldir + "成功！");
                 return true;
             } else {
                 return false;
@@ -329,9 +314,8 @@ public class MyFileModule{
         }
 
         File file =new File(path);
-        if  (!file .exists()  && !file .isDirectory())
-        {
-            LogUtils.d(MyFileModule.class,"目录"+path+"不存在,创建目录");
+        if  (!file .exists()  && !file .isDirectory()) {
+            LogUtils.d(FileUtils.class,"目录"+path+"不存在,创建目录");
             file.mkdir();
         }
         return path;
@@ -350,7 +334,7 @@ public class MyFileModule{
     }
 
     //初始化文件名列表
-    public static ArrayList<String> GetFileArray() {
+    public static ArrayList<String> GetFileArray(boolean forListView) {
         ArrayList<String> FileNameArray = new ArrayList<String>();
         File file = new File(GetRootPath());
         if (file != null) {
@@ -358,9 +342,13 @@ public class MyFileModule{
                 File files[] = file.listFiles();
                 if (files != null) {
                     for (int index = 0; index < files.length; index++) {
-                        if(files[index].getName().indexOf(".bin") > -1) {
+                        if((files[index].getName().indexOf(".bin") > -1)||(files[index].getName().indexOf("filter") > -1)) {
                             ;//bin文件不显示
                         }else{
+                            //界面上不显示mtklog文件夹
+                            if(forListView && files[index].getName().equals("mtklog")){
+                                continue;
+                            }
                             FileNameArray.add(files[index].getName());
                         }
                     }
@@ -371,7 +359,7 @@ public class MyFileModule{
     }
 
     //初始化文件大小列表
-    public static ArrayList<String> GetFileSizeArray() {
+    public static ArrayList<String> GetFileSizeArray(boolean forListView) {
         ArrayList<String> FileSizeArray = null;
         File file = new File(GetRootPath());
         if (file != null) {
@@ -380,9 +368,13 @@ public class MyFileModule{
                 FileSizeArray = new ArrayList<String>();
                 if (files != null) {
                     for (int index = 0; index < files.length; index++) {
-                        if(files[index].getName().indexOf(".bin") > -1) {
+                        if((files[index].getName().indexOf(".bin") > -1)||(files[index].getName().indexOf("filter") > -1)) {
                             ;//bin文件不显示
                         }else{
+                            //界面上不显示mtklog文件夹
+                            if(forListView && files[index].getName().equals("mtklog")){
+                                continue;
+                            }
                             String size = FormetFileOrFolderSize(getFileOrFolderSize(files[index]));
                             FileSizeArray.add(size);
                         }
@@ -449,9 +441,9 @@ public class MyFileModule{
             result = true;
         }
         if(result == true){
-            LogUtils.d(MyFileModule.class,"文件夹移动成功！");
+            LogUtils.d(FileUtils.class,"文件夹移动成功！");
         }else{
-            LogUtils.e(MyFileModule.class,"文件夹移动失败！");
+            LogUtils.e(FileUtils.class,"文件夹移动失败！");
         }
         return result;
     }
@@ -529,7 +521,7 @@ public class MyFileModule{
             inputStream.close();
             return sb.toString();
         }catch (Exception e){
-            LogUtils.i(MyFileModule.class,"读文件"+fileName+"失败，reason："+e.toString());
+            LogUtils.i(FileUtils.class,"读文件"+fileName+"失败，reason："+e.toString());
         }
         return null;
     }
@@ -557,201 +549,10 @@ public class MyFileModule{
             fileOutputStream.close();
             result = true;
         }catch(Exception e){
-            LogUtils.i(MyFileModule.class,"写文件"+fileName+"失败，reason："+e.toString());
+            LogUtils.i(FileUtils.class,"写文件"+fileName+"失败，reason："+e.toString());
         }
 
         return result;
     }
 
-    private static Map<String, Long> UploadFileAttr = new HashMap();
-    private static long UploadProgress = 0;
-    private static long TotalUploadSize = 0;
-    private static long AllFileTotalSize = 0;
-    private static int TotFileNum = 0;
-    private static int SuccessFileNum = 0;
-    private static int FaileFileNum = 0;
-    private static OSSAsyncTask UploadTask;
-
-    private static String buildObjectKey(String FileName){
-        String devicebrand = BasicInfo.getDeviceBrand();
-        String systemmodel = BasicInfo.getSystemModel();
-        String sn = BasicInfo.getSN();
-        Calendar calendar = Calendar.getInstance();
-        String timestamp = String.format("%04d_%02d_%02d",
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH)+1,
-                calendar.get(Calendar.DAY_OF_MONTH));
-
-        String objectKey = devicebrand+"/"+systemmodel+"/"+sn+"/"+timestamp+"/"+FileName;
-
-        return objectKey;
-    }
-
-    private synchronized static void handleProgressCallback(String FileName,Handler handler,long currentSize, long totalSize){
-        LogUtils.d(MyFileModule.class,"currentSize: " + currentSize + " totalSize: " + totalSize);
-        TotalUploadSize += currentSize - UploadFileAttr.get(FileName);
-        UploadFileAttr.put(FileName, currentSize);
-        long process = (TotalUploadSize*100)/AllFileTotalSize;
-        LogUtils.d(MyFileModule.class,"已上传大小："+TotalUploadSize
-                +" 总大小："+AllFileTotalSize+" persent: "+(int)process+"%");
-        if (UploadProgress != process){
-            UploadProgress = process;
-
-            String ResultString = String.format("%d,%d",process,TotFileNum);
-            Message message = handler.obtainMessage() ;
-            message.obj = (int)process;
-            message.what = 4;
-            message.obj = ResultString;
-            handler.sendMessage(message);
-        }
-    }
-
-    private synchronized static void handleSuccessCallback(String FileName,Handler handler){
-        LogUtils.i(MyFileModule.class,"文件"+FileName+"上传成功!");
-        SuccessFileNum++;
-        LogUtils.i(MyFileModule.class,"SuccessFileNum:"+SuccessFileNum+" filename"+FileName);
-        LogUtils.i(MyFileModule.class,"FaileFileNum:"+FaileFileNum+" filename"+FileName);
-        LogUtils.i(MyFileModule.class,"uploadFileNum:"+(TotFileNum-SuccessFileNum-FaileFileNum)+" filename"+FileName);
-        String ResultString = String.format("%d,%d,%d,",SuccessFileNum,FaileFileNum,TotFileNum-SuccessFileNum-FaileFileNum)+FileName;
-        Message message = handler.obtainMessage();
-        message.what = 5;
-        message.obj = ResultString;
-        handler.sendMessage(message);
-    }
-
-    private synchronized static void handleFaileCallback(String FileName,Handler handler) {
-        LogUtils.e(MyFileModule.class,"文件"+FileName+"上传失败!");
-        FaileFileNum++;
-        String ResultString = String.format("%d,%d,%d,",SuccessFileNum,FaileFileNum,TotFileNum-SuccessFileNum-FaileFileNum)+FileName;
-        Message message =  handler.obtainMessage();
-        message.what = 6;
-        message.obj = ResultString;
-        handler.sendMessage(message);
-    }
-
-    public static void InitUploadStatus(int totFilesCount,long totFilesSize) {
-        UploadFileAttr.clear();
-        UploadProgress = 0;
-        TotalUploadSize = 0;
-        AllFileTotalSize =totFilesSize;
-        TotFileNum = totFilesCount;
-        SuccessFileNum = 0;
-        FaileFileNum = 0;
-    }
-
-    public static void UploadCancle(){
-        UploadTask.cancel();
-    }
-    public static void ResumableUpload(final String FileName, final Handler handler) {
-        String endpoint = "http://oss-cn-hangzhou.aliyuncs.com";
-        String stsServer = "http://47.91.198.137:65534/sts/getsts";
-        OSSCredentialProvider credentialProvider = new OSSAuthCredentialsProvider(stsServer);
-
-        OSS oss = new OSSClient(MainActivity.getContext(), endpoint, credentialProvider);
-        String recordDirectory = Environment.getExternalStorageDirectory().getAbsolutePath() + "/oss_record/";
-        File recordDir = new File(recordDirectory);
-        if (!recordDir.exists()) {
-            recordDir.mkdirs();
-        }
-
-        UploadFileAttr.put(FileName, 0L);
-        String objectKey = buildObjectKey(FileName);
-        final String filepath = GetRootPath() + FileName;
-
-        ResumableUploadRequest request = new ResumableUploadRequest("skyroam-terminal-log", objectKey, filepath, recordDirectory);
-        request.setDeleteUploadOnCancelling(false);
-
-        request.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
-            @Override
-            public void onProgress(ResumableUploadRequest request, long currentSize, long totalSize) {
-                handleProgressCallback(FileName,handler,currentSize,totalSize);
-            }
-        });
-
-        UploadTask = oss.asyncResumableUpload(request, new OSSCompletedCallback<ResumableUploadRequest, ResumableUploadResult>() {
-            @Override
-            public void onSuccess(ResumableUploadRequest request, ResumableUploadResult result) {
-                handleSuccessCallback(FileName,handler);
-            }
-
-            @Override
-            public void onFailure(ResumableUploadRequest request, ClientException clientExcepion, ServiceException serviceException) {
-                // 异常处理
-                if (clientExcepion != null) {
-                    LogUtils.e(MyFileModule.class,"clientExcepion:"+clientExcepion.getMessage());
-                }
-
-                handleFaileCallback(FileName,handler);
-            }
-        });
-
-    }
-
-    public static void SimpleUpload(final String FileName, final Handler handler) {
-        String endpoint = "http://oss-cn-hangzhou.aliyuncs.com";
-        OSSCredentialProvider credetialProvider = new OSSFederationCredentialProvider() {
-            @Override
-            public OSSFederationToken getFederationToken() {
-                try {
-                    URL stsUrl = new URL("http://47.91.198.137:65534/sts/getsts");
-                    HttpURLConnection conn = (HttpURLConnection) stsUrl.openConnection();
-                    InputStream input = conn.getInputStream();
-                    String jsonText = IOUtils.readStreamAsString(input, OSSConstants.DEFAULT_CHARSET_NAME);
-                    JSONObject jsonObjs = new JSONObject(jsonText);
-                    String ak = jsonObjs.getString("AccessKeyId");
-                    String sk = jsonObjs.getString("AccessKeySecret");
-                    String token = jsonObjs.getString("SecurityToken");
-                    String expiration = jsonObjs.getString("Expiration");
-                    return new OSSFederationToken(ak, sk, token, expiration);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    LogUtils.e(MyFileModule.class,"get token failed:"+e.toString());
-                }
-                return null;
-            }
-        };
-
-        OSS oss = new OSSClient(MainActivity.getContext(), endpoint, credetialProvider);
-
-        UploadFileAttr.put(FileName, 0L);
-        String objectKey = buildObjectKey(FileName);
-        final String filepath = GetRootPath() + FileName;
-
-        // 构造上传请求
-        PutObjectRequest put = new PutObjectRequest("skyroam-terminal-log", objectKey, filepath);
-
-        // 异步上传时可以设置进度回调
-        put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
-            @Override
-            public void onProgress(PutObjectRequest request, long currentSize, long totalSize) {
-                handleProgressCallback(FileName,handler,currentSize,totalSize);
-            }
-        });
-
-        UploadTask = oss.asyncPutObject(put, new OSSCompletedCallback<PutObjectRequest, PutObjectResult>() {
-            @Override
-            public void onSuccess(PutObjectRequest request, PutObjectResult result) {
-                handleSuccessCallback(FileName,handler);
-            }
-
-            @Override
-            public void onFailure(PutObjectRequest request, ClientException clientExcepion, ServiceException serviceException) {
-                // 请求异常
-                if (clientExcepion != null) {
-                    // 本地异常如网络异常等
-                    clientExcepion.printStackTrace();
-                    LogUtils.e(MyFileModule.class,"clientExcepion:"+clientExcepion.getMessage());
-                }
-                if (serviceException != null) {
-                    // 服务异常
-                    LogUtils.e(MyFileModule.class ,"ErrorCode:"+serviceException.getErrorCode());
-                    LogUtils.e(MyFileModule.class,"RequestId:"+serviceException.getRequestId());
-                    LogUtils.e(MyFileModule.class,"HostId:"+serviceException.getHostId());
-                    LogUtils.e(MyFileModule.class,"RawMessage:"+serviceException.getRawMessage());
-                }
-
-                handleFaileCallback(FileName,handler);
-            }
-        });
-    }
 }
